@@ -12,11 +12,13 @@ class App extends Component {
 
     this.state = {
       posts: [],
+      searchText: "",
     };
 
     this.updatePost = this.updatePost.bind(this);
     this.deletePost = this.deletePost.bind(this);
     this.createPost = this.createPost.bind(this);
+    this.setSearchText = this.setSearchText.bind(this);
   }
 
   componentDidMount() {
@@ -56,27 +58,43 @@ class App extends Component {
       .catch((error) => console.log(error));
   }
 
+  setSearchText(text) {
+    this.setState({ searchText: text });
+  }
+
   render() {
     const { posts } = this.state;
 
     return (
       <div className="App__parent">
-        <Header />
+        <Header setSearchText={this.setSearchText} />
 
         <section className="App__content">
-          <Compose createPostFn={this.createPost}/>
-          {posts.map((post) => {
-            return (
-              <Post
-                key={post.id}
-                text={post.text}
-                date={post.date}
-                id={post.id}
-                updatePostFn={this.updatePost}
-                deletePostFn={this.deletePost}
-              />
-            );
-          })}
+          <Compose createPostFn={this.createPost} />
+          {posts
+            .filter((post) => {
+              if (this.state.searchText === "") {
+                return post;
+              } else if (
+                post.text
+                  .toLowerCase()
+                  .includes(this.state.searchText.toLowerCase())
+              ) {
+                return post;
+              }
+            })
+            .map((post) => {
+              return (
+                <Post
+                  key={post.id}
+                  text={post.text}
+                  date={post.date}
+                  id={post.id}
+                  updatePostFn={this.updatePost}
+                  deletePostFn={this.deletePost}
+                />
+              );
+            })}
         </section>
       </div>
     );
